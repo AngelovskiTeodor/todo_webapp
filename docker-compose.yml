@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  todo_webapp:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    image: todo_webapp_img
+    container_name: todo_webapp
+    env_file: ./env/.env
+    
+  db:
+    image: postgres:alpine
+    container_name: todo_webapp_db
+    ports:
+      - "5432:5432"
+    env_file: ./env/.env
