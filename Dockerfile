@@ -27,15 +27,7 @@ RUN apk add --no-cache bash\
 RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-#RUN printenv POSTGRES_PASSWORD
-#RUN sleep 5
-
-COPY environ_temp.py /todo_webapp_source/
-RUN python environ_temp.py
-
 EXPOSE 80
-#RUN python manage.py makemigrations todo_webapp
-#RUN python manage.py migrate
-#CMD [ "python", "manage.py", "runserver", "0.0.0.0:80" ]
-ENTRYPOINT python environ_temp.py && python manage.py makemigrations todo_webapp && python manage.py migrate && python manage.py runserver 0.0.0.0:80
-#ENTRYPOINT [ "/bin/ash" ]
+COPY start_django_app.sh /todo_webapp_source/
+RUN chmod +x start_django_app.sh
+ENTRYPOINT [ "sh", "/todo_webapp_source/start_django_app.sh" ]

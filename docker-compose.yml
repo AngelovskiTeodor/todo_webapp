@@ -9,27 +9,11 @@ services:
       - "80:80"
     image: todo_webapp_img
     container_name: todo_webapp
-    # apparently docker-compose imports environment variables into containers (docker compose up), not into images (docker-compose build)
     env_file: ./env/.env
-    #environment:
-      #- POSTGRES_DB=todo_webapp_db      # debugging
-      #- POSTGRES_PASSWORD=DB_PASSWORD  # SHOULD BE PASSED AS --build-arg
-      #- POSTGRES_USER=root    # debugging
-      #- POSTGRES_PASSWORD=root    # debugging
-      
-
+    
   db:
     image: postgres:alpine
     container_name: todo_webapp_db
     ports:
       - "5432:5432"
     env_file: ./env/.env
-    #environment:
-      #- POSTGRES_USER=root    # debugging
-      #- POSTGRES_PASSWORD=root    # debugging
-      #- POSTGRES_DB=todo_webapp_db      # debugging
-
-      #- POSTGRES_DB=todo_webapp_db
-      #- POSTGRES_USER=postgres
-      #- POSTGRES_PASSWORD=DB_PASSWORD  # SHOULD BE PASSED AS --build-arg
-      #- POSTGRES_PASSWORD=postgres  # debugging
