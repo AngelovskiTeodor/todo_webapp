@@ -209,3 +209,7 @@ fabric.properties
 # Visual Studio Code
 .vscode/
 .vscode/*
+
+#PyCharm
+.idea/
+.idea/*

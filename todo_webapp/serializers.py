@@ -1,5 +1,5 @@
-from rest_framework import serizalizers
-from models import TodoCard, TodoItem
+from rest_framework import serializers
+from todo_webapp.models import TodoCard, TodoItem
 
 class TodoCardSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

@@ -37,7 +37,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'todo_webapp.apps.TodoWebappConfig',
-    #'todo_webapp',
+    #'todo_webapp',      # debugging
     'todo_webapp_project',
     'django.contrib.admin',
     'django.contrib.auth',
