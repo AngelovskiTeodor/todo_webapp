@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'oauth2_provider',
     'rest_framework',
 ]
 
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 ]
 
 ROOT_URLCONF = 'todo_webapp_project.urls'
@@ -77,6 +79,25 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'todo_webapp_project.wsgi.application'
+
+
+# DRF configuration to use OAuth2 instead of default authentication
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',      # used for Browsable API, probably not needed for custom front-end app
+    ),
+    'DEFAULT_PERMISSION_CLASSES':(
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+
+AUTHENTICATION_BACKEND = (
+    'django.contrib.auth.backends.ModelBackend',    # used for Browsable API, probably not needed for custom front-end app
+    'oauth2_provider.backends.OAuth2Backend',
+)
 
 
 # Database
