@@ -38,6 +38,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'todo_webapp.apps.TodoWebappConfig',
     #'todo_webapp',      # debugging
+    'users.apps.UsersConfig',
+    #'users',    # debugging
     'todo_webapp_project',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -86,7 +88,7 @@ WSGI_APPLICATION = 'todo_webapp_project.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework.authentication.SessionAuthentication',      # used for Browsable API, probably not needed for custom front-end app
+        #'rest_framework.authentication.SessionAuthentication',      # used for Browsable API, probably not needed for custom front-end app
     ),
     'DEFAULT_PERMISSION_CLASSES':(
         'rest_framework.permissions.IsAuthenticated',
@@ -95,7 +97,7 @@ REST_FRAMEWORK = {
 
 
 AUTHENTICATION_BACKEND = (
-    'django.contrib.auth.backends.ModelBackend',    # used for Browsable API, probably not needed for custom front-end app
+    #'django.contrib.auth.backends.ModelBackend',    # used for Browsable API, probably not needed for custom front-end app
     'oauth2_provider.backends.OAuth2Backend',
 )
 
