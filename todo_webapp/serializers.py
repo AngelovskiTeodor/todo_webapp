@@ -4,7 +4,7 @@ from todo_webapp.models import TodoCard, TodoItem
 class TodoCardSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TodoCard
-        fields = [ 'title', 'description', 'items', 'deadline' ]
+        fields = [ 'title', 'description', 'deadline' ]   # [ 'title', 'description', 'items', 'deadline' ]
 
 class TodoItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
