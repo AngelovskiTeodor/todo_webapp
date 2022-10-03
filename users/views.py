@@ -6,19 +6,22 @@ from rest_framework.permissions import AllowAny
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 import requests
+import environ
 
 from users.serializers import CreateUserSerializer
 
-
-CLIENT_ID = 'client_id'
-CLIENT_SECRET = 'client_secret'
+env = environ.Env()
+# reading .env file
+environ.Env.read_env()
+CLIENT_ID = env('OAUTH_CLIENT_ID')
+CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
 
 
 @csrf_exempt
 @permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
-    new_user_data = JSONParser().parse(request.data)
+    new_user_data = request.data    # JSONParser().parse(request.data)      # Parse request???  koga se koristi @api_view['POST'] ne treba JSONParser
     users_serializer = CreateUserSerializer(data=new_user_data)
     if users_serializer.is_valid():
         users_serializer.save()
@@ -33,7 +36,7 @@ def register_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def token(request):
-    user_data = JSONParser().parse(request.data)
+    user_data = request.data    # JSONParser().parse(request.data)      # Parse request???
     r = requests.post(
         'http://0.0.0.0:80/o/token', data = {
             'grant_type': 'password',
