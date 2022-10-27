@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -87,19 +88,21 @@ WSGI_APPLICATION = 'todo_webapp_project.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        #'rest_framework.authentication.SessionAuthentication',      # used for Browsable API, probably not needed for custom front-end app
+        #'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',      # default Django Rest Framework implementation for authenticating
     ),
     'DEFAULT_PERMISSION_CLASSES':(
-        'rest_framework.permissions.IsAuthenticated',
+        #'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 }
 
 
-AUTHENTICATION_BACKEND = (
+#AUTHENTICATION_BACKEND = (
     #'django.contrib.auth.backends.ModelBackend',    # used for Browsable API, probably not needed for custom front-end app
-    'oauth2_provider.backends.OAuth2Backend',
-)
+#    'oauth2_provider.backends.OAuth2Backend',
+#)
 
 
 # Database

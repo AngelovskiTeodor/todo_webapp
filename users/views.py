@@ -1,10 +1,12 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework.authtoken.views import obtain_auth_token as get_token
+from rest_framework.authtoken.models import Token
 import requests
 import environ
 
@@ -27,7 +29,9 @@ def register_user(request):
         users_serializer.save()
 
         # get token for registered user
-        return token(request)
+        #return token(request)
+        #return redirect('/authentication/token/')
+        #return get_token(request)       # return the token
     else:
         return JsonResponse(users_serializer.errors, status=400)
 
@@ -37,18 +41,14 @@ def register_user(request):
 @permission_classes([AllowAny])
 def token(request):
     user_data = request.data    # JSONParser().parse(request.data)      # Parse request???
-    r = requests.post(
-        'http://0.0.0.0:80/o/token', data = {
-            'grant_type': 'password',
-            'username': user_data['username'],
-            'password': user_data['password'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET, 
-        }
-    )
-    return Response(r.json())
+    #r = redirect('/authentication/token/')      # ne e vozmozno da se napravi redirect na POST baranje. mora custom da bide
+    #r = get_token(request)
+    r = Token.objects.get_or_create(user=request.data['username'])
+    #r = Response(r.json())     # parse to JSON
+    return r
 
 
+# used for oauth
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -64,6 +64,7 @@ def refresh_token(request):
     return Response(r.json())
 
 
+# used for oauth
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
