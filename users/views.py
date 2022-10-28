@@ -20,22 +20,29 @@ CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
 
 
 @csrf_exempt
-@permission_classes([AllowAny])
+#@permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
     new_user_data = request.data    # JSONParser().parse(request.data)      # Parse request???  koga se koristi @api_view['POST'] ne treba JSONParser
     users_serializer = CreateUserSerializer(data=new_user_data)
     if users_serializer.is_valid():
-        users_serializer.save()
+        created_user = users_serializer.save()
+        response_data = {}
+        token = Token.objects.get_or_create(user=created_user)[0].key
+        response_data['message'] = 'Registration successful'
+        response_data['username'] = users_serializer.data['username']
+        response_data['token'] = token
+        return JsonResponse(response_data, status=201)
 
         # get token for registered user
-        #return token(request)
+        #return token(request)      # call API_view function from this file
         #return redirect('/authentication/token/')
-        #return get_token(request)       # return the token
+        #return get_token(request)       # return the token - call rest_framework.authtoken.views.obtain_auth_token
     else:
         return JsonResponse(users_serializer.errors, status=400)
 
 
+# used for oauth
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -43,7 +50,7 @@ def token(request):
     user_data = request.data    # JSONParser().parse(request.data)      # Parse request???
     #r = redirect('/authentication/token/')      # ne e vozmozno da se napravi redirect na POST baranje. mora custom da bide
     #r = get_token(request)
-    r = Token.objects.get_or_create(user=request.data['username'])
+    r = Token.objects.get_or_create(user=user_data['username'])
     #r = Response(r.json())     # parse to JSON
     return r
 
