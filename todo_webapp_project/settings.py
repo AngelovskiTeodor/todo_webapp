@@ -89,8 +89,9 @@ WSGI_APPLICATION = 'todo_webapp_project.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
         #'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',      # default Django Rest Framework implementation for authenticating
+        'rest_framework.authentication.BasicAuthentication',        # probably not needed
+        'rest_framework.authentication.SessionAuthentication',      # default Django Rest Framework implementation for authenticating   # probably not needed
+        'rest_framework.authentication.TokenAuthentication',        
     ),
     'DEFAULT_PERMISSION_CLASSES':(
         #'rest_framework.permissions.IsAuthenticated',

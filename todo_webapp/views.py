@@ -1,6 +1,7 @@
 #from django.shortcuts import render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import JSONParser
@@ -26,19 +27,30 @@ def cards_list(request):
 @api_view(['POST', 'PUT'])
 @csrf_exempt
 @permission_classes([AllowAny])
+#@authentication_classes([TokenAuthentication])
 def card_create(request):
-    print(request)      # debugging
-    print(request.data)      # debugging
+    #print(request)      # debugging
+    #print(request.data)      # debugging
     #print(request.__dict__)      # debugging
+    print('Request Headers: '.format(request.META))     # debugging
+    print('Request Authorization: '.format(request.auth))       # debugging
+    print('Request to create new card by user {0}'.format(request.user))     # debugging
     if request.method in ["POST", "PUT"]:
         new_card_data = request.data    #   JSONParser().parse(request)     # Parse request first???
+        #if request.user is None:
+            #new_card_data['user'] = request.user    # the user must be logged in
+        #else:
+            #new_card_data['user'] = 'admin'     # debugging
+            #print('The user is not authorized')
+            #raise Exception('The user is not authorized')
         card_serializer = TodoCardSerializer(data=new_card_data)
         if card_serializer.is_valid():
-            card_serializer.save()
+            card_serializer.save(user=request.user)
             return JsonResponse(card_serializer.data, status=201)
         return JsonResponse(card_serializer.errors, status=400)
     else:
         print("Request method for card_create is not POST or PUT")
+        raise Exception("Request method for card_create is not POST or PUT")
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
