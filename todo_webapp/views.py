@@ -12,10 +12,6 @@ from todo_webapp.serializers import TodoCardSerializer, TodoItemSerializer
 @csrf_exempt
 @permission_classes([AllowAny])
 def cards_list(request):
-    #print(request)      # debugging
-    #print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
-    #print(request.data.__dict__)      # debugging
     if request.method != "GET":
         # error handling
         print("Request method for cards_list is not GET")
@@ -27,22 +23,9 @@ def cards_list(request):
 @api_view(['POST', 'PUT'])
 @csrf_exempt
 @permission_classes([AllowAny])
-#@authentication_classes([TokenAuthentication])
 def card_create(request):
-    #print(request)      # debugging
-    #print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
-    print('Request Headers: '.format(request.META))     # debugging
-    print('Request Authorization: '.format(request.auth))       # debugging
-    print('Request to create new card by user {0}'.format(request.user))     # debugging
     if request.method in ["POST", "PUT"]:
         new_card_data = request.data    #   JSONParser().parse(request)     # Parse request first???
-        #if request.user is None:
-            #new_card_data['user'] = request.user    # the user must be logged in
-        #else:
-            #new_card_data['user'] = 'admin'     # debugging
-            #print('The user is not authorized')
-            #raise Exception('The user is not authorized')
         card_serializer = TodoCardSerializer(data=new_card_data)
         if card_serializer.is_valid():
             card_serializer.save(user=request.user)
@@ -56,10 +39,6 @@ def card_create(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def card_details(request, card_pk):
-    #print(request)      # debugging
-    #print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
-    #print(request.data.__dict__)      # debugging
     try:
         card = TodoCard.objects.get(pk=card_pk)
     except TodoCard.DoesNotExist:
