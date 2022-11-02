@@ -7,4 +7,5 @@ urlpatterns = [
     path('token/', drf_token_views.obtain_auth_token),
     path('token/refresh/', drf_token_views.obtain_auth_token),
     path('token/revoke/', user_views.revoke_token),
+    path('password/change', user_views.change_password),
 ]

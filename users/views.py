@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes, api_view
@@ -39,19 +40,45 @@ def register_user(request):
         return JsonResponse(users_serializer.errors, status=400)
 
 
+# it is never used, because default method provided by DRF is used
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def token(request):
+def token(request):     # login feature
     user_data = request.data
     username_request = user_data['username']
     password_request = user_data['password']
-    user_object = User.objects.get(username=username_request)   # throwns User.DoesNotExist exception
-    if password_request == user_object.password:
+    user_object = authenticate(username=username_request, password=password_request)
+    if user_object:
         user_token = Token.objects.get_or_create(user=username_request)
+        print(user_token)
         return user_token
     else:
-        return JsonResponse({'message': 'Error: This user does not exist'}, status=404)
+        try:
+            user_object = User.objects.get(username=username_request)
+            return JsonResponse({'message': 'Error: Incorrect password'}, status=401)
+        except:
+            return JsonResponse({'message': 'Error: This user does not exist.'}, status=404)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def change_password(request):
+    request_data=request.data
+    username_request = request_data['username']
+    current_password_request = request_data['current_password']
+    new_password_request = request_data['new_password']
+    user_object = authenticate(username=username_request, password=current_password_request)
+    if user_object:
+        user_object.set_password(new_password_request)
+        user_object.save()
+        user_object.auth_token.delete()
+        new_token = Token.objects.get_or_create(user=user_object)[0].key
+        response = {'message': 'Password Changed Successfully', 'token': new_token}
+        return JsonResponse(response,status=201)
+    else:
+        return JsonResponse({'message': 'Invalid current password. Please try again'}, status=401)
 
 
 # used for oauth
