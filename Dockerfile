@@ -7,6 +7,7 @@ WORKDIR /todo_webapp_source
 
 COPY todo_webapp/* /todo_webapp_source/todo_webapp/
 COPY todo_webapp_project/* /todo_webapp_source/todo_webapp_project/
+COPY users/* /todo_webapp_source/users/
 COPY manage.py /todo_webapp_source/
 COPY requirements.txt /todo_webapp_source/
 
