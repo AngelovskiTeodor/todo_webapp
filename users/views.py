@@ -1,10 +1,15 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework.authtoken.views import obtain_auth_token as get_token
+from rest_framework.authtoken.models import Token
 import requests
 import environ
 
@@ -18,37 +23,65 @@ CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
 
 
 @csrf_exempt
-@permission_classes([AllowAny])
+#@permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
-    new_user_data = request.data    # JSONParser().parse(request.data)      # Parse request???  koga se koristi @api_view['POST'] ne treba JSONParser
+    new_user_data = request.data
     users_serializer = CreateUserSerializer(data=new_user_data)
     if users_serializer.is_valid():
-        users_serializer.save()
-
-        # get token for registered user
-        return token(request)
+        created_user = users_serializer.save()
+        response_data = {}
+        token = Token.objects.get_or_create(user=created_user)[0].key
+        response_data['message'] = 'Registration successful'
+        response_data['username'] = users_serializer.data['username']
+        response_data['token'] = token
+        return JsonResponse(response_data, status=201)
     else:
         return JsonResponse(users_serializer.errors, status=400)
+
+
+# it is never used, because default method provided by DRF is used
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def token(request):     # login feature
+    user_data = request.data
+    username_request = user_data['username']
+    password_request = user_data['password']
+    user_object = authenticate(username=username_request, password=password_request)
+    if user_object:
+        user_token = Token.objects.get_or_create(user=username_request)
+        print(user_token)
+        return user_token
+    else:
+        try:
+            user_object = User.objects.get(username=username_request)
+            return JsonResponse({'message': 'Error: Incorrect password'}, status=401)
+        except:
+            return JsonResponse({'message': 'Error: This user does not exist.'}, status=404)
 
 
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def token(request):
-    user_data = request.data    # JSONParser().parse(request.data)      # Parse request???
-    r = requests.post(
-        'http://0.0.0.0:80/o/token', data = {
-            'grant_type': 'password',
-            'username': user_data['username'],
-            'password': user_data['password'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET, 
-        }
-    )
-    return Response(r.json())
+def change_password(request):
+    request_data=request.data
+    username_request = request_data['username']
+    current_password_request = request_data['current_password']
+    new_password_request = request_data['new_password']
+    user_object = authenticate(username=username_request, password=current_password_request)
+    if user_object:
+        user_object.set_password(new_password_request)
+        user_object.save()
+        user_object.auth_token.delete()
+        new_token = Token.objects.get_or_create(user=user_object)[0].key
+        response = {'message': 'Password Changed Successfully', 'token': new_token}
+        return JsonResponse(response,status=201)
+    else:
+        return JsonResponse({'message': 'Invalid current password. Please try again'}, status=401)
 
 
+# used for oauth
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -65,18 +98,12 @@ def refresh_token(request):
 
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(['GET'])#, 'POST', 'DELETE', 'PUT', 'PATCH'])
 @permission_classes([AllowAny])
 def revoke_token(request):
-    r = requests.post(
-        'http://0.0.0.0:80/o/revoke_token', data = {
-            'token': request.data['token'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        }
-    )
+    try:
+        request.user.auth_token.delete()
+    except (AttributeError, ObjectDoesNotExist):
+        return JsonResponse({'message': 'Logout Unsuccessful'}, status=404)
+    return JsonResponse({'message': 'Logout Successful'}, status=201)
 
-    if r.status_code == requests.codes.ok:
-        return Response({'message': 'token revoked'}, r.status_code)
-    else:
-        return Response(r.json(), r.status_code)

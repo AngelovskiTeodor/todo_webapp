@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5!i1i(vxi3dx)-t*#l1#yt5e#ju%j=fexzc%1(6cz=h1ai)=e7'
+SECRET_KEY = 'django-insecure-5!i1i(vxi3dx)-t*#l1#yt5e#ju%j=fexzc%1(6cz=h1ai)=e7'       # should be in stored in environment variable 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,9 +37,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'todo_webapp.apps.TodoWebappConfig',
-    #'todo_webapp',      # debugging
     'users.apps.UsersConfig',
-    #'users',    # debugging
     'todo_webapp_project',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -83,23 +82,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'todo_webapp_project.wsgi.application'
 
 
-# DRF configuration to use OAuth2 instead of default authentication
-
+# DRF configuration to use Token Authentication instead of default authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        #'rest_framework.authentication.SessionAuthentication',      # used for Browsable API, probably not needed for custom front-end app
+        'rest_framework.authentication.TokenAuthentication',        
     ),
     'DEFAULT_PERMISSION_CLASSES':(
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 }
 
 
-AUTHENTICATION_BACKEND = (
-    #'django.contrib.auth.backends.ModelBackend',    # used for Browsable API, probably not needed for custom front-end app
-    'oauth2_provider.backends.OAuth2Backend',
-)
+#AUTHENTICATION_BACKEND = ()
 
 
 # Database

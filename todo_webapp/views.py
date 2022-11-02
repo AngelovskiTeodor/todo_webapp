@@ -1,6 +1,7 @@
 #from django.shortcuts import render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import JSONParser
@@ -11,10 +12,6 @@ from todo_webapp.serializers import TodoCardSerializer, TodoItemSerializer
 @csrf_exempt
 @permission_classes([AllowAny])
 def cards_list(request):
-    #print(request)      # debugging
-    #print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
-    #print(request.data.__dict__)      # debugging
     if request.method != "GET":
         # error handling
         print("Request method for cards_list is not GET")
@@ -27,27 +24,21 @@ def cards_list(request):
 @csrf_exempt
 @permission_classes([AllowAny])
 def card_create(request):
-    print(request)      # debugging
-    print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
     if request.method in ["POST", "PUT"]:
         new_card_data = request.data    #   JSONParser().parse(request)     # Parse request first???
         card_serializer = TodoCardSerializer(data=new_card_data)
         if card_serializer.is_valid():
-            card_serializer.save()
+            card_serializer.save(user=request.user)
             return JsonResponse(card_serializer.data, status=201)
         return JsonResponse(card_serializer.errors, status=400)
     else:
         print("Request method for card_create is not POST or PUT")
+        raise Exception("Request method for card_create is not POST or PUT")
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 @csrf_exempt
 def card_details(request, card_pk):
-    #print(request)      # debugging
-    #print(request.data)      # debugging
-    #print(request.__dict__)      # debugging
-    #print(request.data.__dict__)      # debugging
     try:
         card = TodoCard.objects.get(pk=card_pk)
     except TodoCard.DoesNotExist:
