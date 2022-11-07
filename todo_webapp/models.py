@@ -14,7 +14,7 @@ class TodoCard(models.Model):
     """
     # Auto generated primery key id, type BigInt
     title = models.CharField(max_length=128, blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=False)    # blank se odnesuva dali pri validacija moze da bide prazno ova pole, a null se odnesuva dali vo databaza moze da bide prazno ova pole
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=False)
     description = models.TextField()
     deadline = models.DateTimeField(auto_now=False, auto_now_add=False)
 

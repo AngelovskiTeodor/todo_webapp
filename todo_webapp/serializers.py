@@ -4,13 +4,12 @@ from todo_webapp.models import TodoCard, TodoItem
 # Django REST Framework Docs Reference:
 # https://www.django-rest-framework.org/api-guide/relations/
 
-class TodoCardCreateSerializer(serializers.HyperlinkedModelSerializer):
+class TodoCardCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoCard
         fields = ['id', 'title', 'description', 'deadline']
 
 class TodoCardDetailsSerializer(serializers.ModelSerializer):
-    #user = serializers.PrimaryKeyRelatedField(many=False, read_only=True)   # dava integer id namesto username
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     #items = serializers.PrimaryKeyRelatedField(many=True, queryset=TodoItem.objects.all())  # frla exception bidejki vo models.py nema items field vo klasata TodoCard

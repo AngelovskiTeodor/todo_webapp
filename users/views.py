@@ -1,32 +1,22 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from rest_framework.authtoken.views import obtain_auth_token as get_token
 from rest_framework.authtoken.models import Token
 import requests
 import environ
 
-from users.serializers import CreateUserSerializer#, UserSerializer
+from users.serializers import CreateUserSerializer
 
 env = environ.Env()
 # reading .env file
 environ.Env.read_env()
 CLIENT_ID = env('OAUTH_CLIENT_ID')
 CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
-
-
-#class UserDetail(generics.RetrieveAPIView):
-#    queryset = User.objects.all()
-#    serializer_class = UserSerializer
-#    lookup_field = 'username'
 
 
 @csrf_exempt
