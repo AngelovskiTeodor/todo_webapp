@@ -44,7 +44,7 @@ def card_details(request, card_id):
         return JsonResponse(card_serializer.data)
     elif request.method == "PUT":
         new_card_data = request.data
-        card_serializer = TodoCardDetailsSerializer(card, data=new_card_data)
+        card_serializer = TodoCardDetailsSerializer(card, data=new_card_data, partial=True)
         if card_serializer.is_valid():
             card_serializer.save()
             return JsonResponse(card_serializer.data, status=201)
