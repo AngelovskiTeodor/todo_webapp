@@ -20,14 +20,22 @@ CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
 
 
 @csrf_exempt
-@api_view(['GET'])
+@api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def account(request):
     user_object = request.user
     if user_object:
-        user = User.objects.get(username=user_object.username)  # debugging: is user_object a list/dict? Do i need to search users by id instead of username?   Do I even need this code?
-        user_serializer = UserSerializer(user)   # do i need context={'request': request}?
-        return JsonResponse(user_serializer.data)
+        if request.method == "GET":
+            user = User.objects.get(username=user_object.username)
+            user_serializer = UserSerializer(user)
+            return JsonResponse(user_serializer.data)
+        if request.method == "PATCH":
+            new_user_data = request.data
+            user_serializer = UserSerializer(user_object, data=new_user_data, partial=True)
+            if user_serializer.is_valid():
+                user_serializer.save()
+                return JsonResponse(user_serializer.data, status=200)
+            return JsonResponse(user_serializer.errors, status=402)
     else:
         return JsonResponse({'message': 'Error: This user does not exist.'}, status=404)
 
