@@ -4,13 +4,13 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes, api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 import requests
 import environ
 
-from users.serializers import CreateUserSerializer
+from users.serializers import UserSerializer
 
 env = environ.Env()
 # reading .env file
@@ -20,11 +20,32 @@ CLIENT_SECRET = env('OAUTH_CLIENT_SECRET')
 
 
 @csrf_exempt
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def account(request):
+    user_object = request.user
+    if user_object:
+        if request.method == "GET":
+            user = User.objects.get(username=user_object.username)
+            user_serializer = UserSerializer(user)
+            return JsonResponse(user_serializer.data)
+        if request.method == "PATCH":
+            new_user_data = request.data
+            user_serializer = UserSerializer(user_object, data=new_user_data, partial=True)
+            if user_serializer.is_valid():
+                user_serializer.save()
+                return JsonResponse(user_serializer.data, status=200)
+            return JsonResponse(user_serializer.errors, status=402)
+    else:
+        return JsonResponse({'message': 'Error: This user does not exist.'}, status=404)
+
+
+@csrf_exempt
 #@permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
     new_user_data = request.data
-    users_serializer = CreateUserSerializer(data=new_user_data)
+    users_serializer = UserSerializer(data=new_user_data)
     if users_serializer.is_valid():
         created_user = users_serializer.save()
         response_data = {}
