@@ -17,3 +17,12 @@ services:
     ports:
       - "5432:5432"
     env_file: ./env/.env
+
+  client:
+    build: ./client/web-client-react/
+    depends_on:
+      - todo_webapp
+    ports:
+      - "3000:3000"
+    image: todo_react_client_img
+    container_name: todo_react_client
